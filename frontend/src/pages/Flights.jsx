@@ -1,37 +1,102 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import FlightCard from '../components/FlightCard';
+import './Flights.css';
 
 function Flights() {
   const [flights, setFlights] = useState([]);
-  const [showFlights, setShowFlights] = useState(false);
+  const [searchParams, setSearchParams] = useState({
+    origin: '',
+    destination: '',
+    departure_date: ''
+  });
+
+  useEffect(() => {
+    fetchFlights();
+  }, []);
 
   const fetchFlights = () => {
-    axios.get('http://localhost:5000/flights')
-      .then(response => {
-        setFlights(response.data);
-        setShowFlights(true);
+    fetch('http://localhost:5000/flights')
+      .then(res => res.json())
+      .then(data => setFlights(data))
+      .catch(err => console.error('Error fetching flights:', err));
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const queryParams = new URLSearchParams(searchParams).toString();
+    fetch(`http://localhost:5000/flights?${queryParams}`)
+      .then(res => res.json())
+      .then(data => setFlights(data))
+      .catch(err => console.error('Error searching flights:', err));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSearchParams(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleBook = (flight_id) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please log in to book a flight.');
+      return;
+    }
+    fetch('http://localhost:5000/bookings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ flight_id })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert('Booking successful!');
+        }
       })
-      .catch(error => {
-        console.error('Error fetching flights:', error);
-      });
+      .catch(err => alert('Error booking flight: ' + err.message));
   };
 
   return (
-    <div className="page-container">
-      <h2>Available Flights ✈️</h2>
-      <button className="primary-btn" onClick={fetchFlights}>
-        View Flights
-      </button>
+    <div className="flights-page">
+      <div className="search-container">
+        <h2>Search Flights</h2>
+        <form onSubmit={handleSearch} className="search-form">
+          <input
+            type="text"
+            name="origin"
+            placeholder="From"
+            value={searchParams.origin}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="destination"
+            placeholder="To"
+            value={searchParams.destination}
+            onChange={handleInputChange}
+          />
+          <input
+            type="date"
+            name="departure_date"
+            value={searchParams.departure_date}
+            onChange={handleInputChange}
+          />
+          <button type="submit">Search</button>
+        </form>
+      </div>
 
-      {showFlights && (
-        <ul className="features-list" style={{ marginTop: '30px' }}>
-          {flights.map(flight => (
-            <li key={flight.id}>
-              {flight.origin} → {flight.destination} on {flight.date} at {flight.time}
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="flights-grid">
+        {flights.map(flight => (
+          <FlightCard key={flight.id} flight={flight} onBook={handleBook} />
+        ))}
+      </div>
     </div>
   );
 }

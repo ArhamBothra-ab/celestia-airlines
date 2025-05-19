@@ -1,37 +1,107 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import './Bookings.css';
+import { useNavigate } from 'react-router-dom';
 
 function Bookings() {
   const [bookings, setBookings] = useState([]);
-  const [showBookings, setShowBookings] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
 
   const fetchBookings = () => {
-    axios.get('http://localhost:5000/bookings')
-      .then(response => {
-        setBookings(response.data);
-        setShowBookings(true);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please log in to view your bookings.');
+      return;
+    }
+    fetch('http://localhost:5000/bookings', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(data => setBookings(data))
+      .catch(err => console.error('Error fetching bookings:', err));
+  };
+
+  const handleCancel = (bookingId) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please log in to cancel bookings.');
+      return;
+    }
+    if (window.confirm('Are you sure you want to cancel this booking?')) {
+      fetch(`http://localhost:5000/bookings/${bookingId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       })
-      .catch(error => {
-        console.error('Error fetching bookings:', error);
-      });
+        .then(() => {
+          fetchBookings();
+          alert('Booking cancelled successfully');
+        })
+        .catch(err => alert('Error cancelling booking: ' + err.message));
+    }
+  };
+
+  const handleMarkPaid = (bookingId) => {
+    const token = localStorage.getItem('token');
+    fetch(`http://localhost:5000/bookings/${bookingId}/pay`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        fetchBookings();
+        alert('Booking marked as paid!');
+      })
+      .catch(err => alert('Error marking as paid: ' + err.message));
   };
 
   return (
-    <div className="page-container">
-      <h2>Your Bookings 📋</h2>
-      <button className="primary-btn" onClick={fetchBookings}>
-        Show My Bookings
-      </button>
-
-      {showBookings && (
-        <ul className="features-list" style={{ marginTop: '30px' }}>
-          {bookings.map(booking => (
-            <li key={booking.id}>
-              {booking.user} booked from {booking.origin} → {booking.destination} on {booking.date} at {booking.time}
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="bookings-page">
+      <h2>Your Bookings</h2>
+      <div className="bookings-grid">
+        {bookings.map(booking => (
+          <div key={booking.id} className="booking-card">
+            <div className="booking-header">
+              <h3>Booking #{booking.id}</h3>
+              <span className="booking-status">{booking.status || 'Confirmed'}</span>
+            </div>
+            <div className="booking-details">
+              <p className="route">
+                {booking.origin_airport_city} ({booking.origin_airport_code}) ➡ {booking.destination_city || booking.destination_airport_city} ({booking.destination_airport_code})
+              </p>
+              <p className="date-time">
+                {booking.departure_date} {booking.departure_time} → {booking.arrival_date} {booking.arrival_time}
+              </p>
+              <p className="flight-number">Flight: {booking.flight_number}</p>
+              <p className="class">Class: {booking.class}</p>
+              <p className="flight-price">Price: ${booking.price}</p>
+              <p className="payment-status">Payment: {booking.payment_status || 'Pending'}</p>
+            </div>
+            {booking.payment_status === 'Paid' && (
+              <button className="ticket-button" onClick={() => navigate('/tickets')}>View Ticket</button>
+            )}
+            {booking.payment_status !== 'Paid' && (
+              <button className="pay-button" onClick={() => handleMarkPaid(booking.id)}>
+                Mark as Paid
+              </button>
+            )}
+            <button 
+              className="cancel-button"
+              onClick={() => handleCancel(booking.id)}
+            >
+              Cancel Booking
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

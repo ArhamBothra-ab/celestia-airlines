@@ -6,6 +6,7 @@ const db = require('./db');
 require('dotenv').config();
 
 const flightsRoute = require('./routes/flights');
+const adminRoute = require('./routes/admin');
 
 const app = express();
 app.use(cors());
@@ -18,6 +19,7 @@ app.get('/', (req, res) => {
 app.use('/flights', flightsRoute);
 app.use('/bookings', bookingsRoute);
 app.use('/users', usersRoute);
+app.use('/admin', adminRoute);
 app.use(express.urlencoded({ extended: true }));
 
 
