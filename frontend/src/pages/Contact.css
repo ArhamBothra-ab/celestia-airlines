@@ -1,40 +1,47 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
 
-.flights-page {
-  min-height: 100vh;
+.contact-page-fx {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   font-family: 'Montserrat', Arial, sans-serif;
   background: linear-gradient(120deg, #f1f7ff 0%, #e0e7ff 100%);
   padding-top: 40px;
 }
 
-.flights-title {
-  font-size: 2.1rem;
+.contact-title {
+  font-size: 2.2rem;
   font-weight: 700;
   color: #002147;
   margin-bottom: 24px;
   letter-spacing: 1px;
-  text-align: center;
 }
 
-.flights-card {
+.contact-card {
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 6px 32px 0 rgba(44,62,80,0.13);
   padding: 36px 32px 28px 32px;
-  max-width: 480px;
+  max-width: 420px;
   width: 100%;
-  margin: 0 auto 40px auto;
+  margin-bottom: 40px;
   transition: box-shadow 0.2s;
 }
 
-.flights-form {
+.contact-card:focus-within {
+  box-shadow: 0 8px 40px 0 #f1c40f44;
+}
+
+.contact-form {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-.flights-form select,
-.flights-form input[type="date"] {
+.contact-form input,
+.contact-form textarea {
   font-family: inherit;
   font-size: 1.08rem;
   padding: 12px 14px;
@@ -43,15 +50,11 @@
   outline: none;
   transition: border 0.2s, box-shadow 0.2s;
   background: #f8fafc;
-  color: #222;
+  resize: none;
 }
 
-.flights-form select option {
-  color: #222;
-}
-
-.flights-form select:focus,
-.flights-form input[type="date"]:focus {
+.contact-form input:focus,
+.contact-form textarea:focus {
   border: 1.5px solid #f1c40f;
   box-shadow: 0 0 0 2px #f1c40f33;
 }
@@ -79,7 +82,23 @@
   color: #1a237e;
 }
 
-.flights-spinner {
+.contact-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #002147;
+  font-size: 1.15rem;
+  min-height: 120px;
+  justify-content: center;
+}
+
+.contact-success-icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+
+.contact-spinner {
   display: inline-block;
   width: 22px;
   height: 22px;
@@ -95,67 +114,6 @@
   100% { transform: rotate(360deg); }
 }
 
-.flights-error {
-  color: #e74c3c;
-  margin-top: 10px;
-  text-align: center;
-}
-
-.flights-results {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  justify-content: center;
-  margin-top: 24px;
-}
-
-.flights-result-card {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 18px 0 rgba(44,62,80,0.10);
-  padding: 24px 18px;
-  min-width: 220px;
-  max-width: 280px;
-  flex: 1 1 220px;
-  text-align: center;
-  color: #002147;
-  font-size: 1.08rem;
-  transition: box-shadow 0.2s;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.flights-result-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 700;
-  font-size: 1.1rem;
-  margin-bottom: 6px;
-}
-
-.flights-result-class {
-  color: #f1c40f;
-}
-
-.flights-result-info {
-  font-size: 1.05rem;
-  margin-bottom: 4px;
-}
-
-.flights-result-seats {
-  color: #1a237e;
-  font-size: 0.98rem;
-  margin-bottom: 8px;
-}
-
-.flights-empty {
-  color: #888;
-  text-align: center;
-  margin-top: 24px;
-  font-size: 1.1rem;
-}
-
 .animate-fadein {
   animation: fadein 0.7s cubic-bezier(.39,.58,.57,1.01);
 }
@@ -165,14 +123,11 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 900px) {
-  .flights-results {
-    flex-direction: column;
-    align-items: center;
-  }
-}
 @media (max-width: 600px) {
-  .flights-title {
-    font-size: 1.1rem;
+  .contact-card {
+    padding: 18px 8px 18px 8px;
+  }
+  .contact-title {
+    font-size: 1.4rem;
   }
 }

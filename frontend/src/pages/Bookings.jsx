@@ -86,7 +86,7 @@ function Bookings() {
               <p className="payment-status">Payment: {booking.payment_status || 'Pending'}</p>
             </div>
             {booking.payment_status === 'Paid' && (
-              <button className="ticket-button" onClick={() => navigate('/tickets')}>View Ticket</button>
+              <button className="ticket-button" onClick={() => navigate('/tickets', { state: { fromBookings: true } })}>View Ticket</button>
             )}
             {booking.payment_status !== 'Paid' && (
               <button className="pay-button" onClick={() => handleMarkPaid(booking.id)}>

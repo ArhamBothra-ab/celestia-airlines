@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
+
+.profile-page-fx {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: linear-gradient(120deg, #f1f7ff 0%, #e0e7ff 100%);
+  padding-top: 40px;
+}
+
+.profile-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #002147;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+
+.profile-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 6px 32px 0 rgba(44,62,80,0.13);
+  padding: 36px 32px 28px 32px;
+  max-width: 420px;
+  width: 100%;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  transition: box-shadow 0.2s;
+}
+
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px #f1c40f33;
+  margin-bottom: 12px;
+  background: #f1c40f22;
+}
+
+.profile-info {
+  font-size: 1.13rem;
+  color: #002147;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.profile-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #002147;
+  font-size: 1.1rem;
+  min-height: 120px;
+  justify-content: center;
+}
+
+.profile-spinner {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 3px solid #f1c40f;
+  border-top: 3px solid #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-fadein {
+  animation: fadein 0.7s cubic-bezier(.39,.58,.57,1.01);
+}
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.profile-form {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 1rem;
+}
+
+.profile-form input[type="text"],
+.profile-form input[type="email"],
+.profile-form input[type="password"] {
+  font-family: inherit;
+  font-size: 1.05rem;
+  padding: 10px 12px;
+  border: 1.5px solid #dbeafe;
+  border-radius: 8px;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: #f8fafc;
+}
+
+.profile-form input:focus {
+  border: 1.5px solid #f1c40f;
+  box-shadow: 0 0 0 2px #f1c40f33;
+}
+
+.profile-form button.primary-btn {
+  margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .profile-card {
+    padding: 18px 8px 18px 8px;
+  }
+  .profile-title {
+    font-size: 1.3rem;
+  }
+}

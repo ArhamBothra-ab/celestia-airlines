@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
+
+.home-page-fx {
+  min-height: 100vh;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: linear-gradient(120deg, #f1f7ff 0%, #e0e7ff 100%);
+}
+
+.hero-fx {
+  background-size: cover;
+  background-position: center;
+  min-height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.hero-overlay {
+  background: rgba(0,33,71,0.72);
+  color: #fff;
+  padding: 48px 32px 48px 32px;
+  border-radius: 18px;
+  box-shadow: 0 6px 32px 0 rgba(44,62,80,0.13);
+  text-align: center;
+  max-width: 540px;
+  margin: 40px auto 0 auto;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.hero-desc {
+  font-size: 1.2rem;
+  margin-bottom: 24px;
+}
+
+.hero-btn {
+  margin-top: 18px;
+  font-size: 1.1rem;
+  padding: 12px 32px;
+}
+
+.section {
+  margin: 48px auto 0 auto;
+  max-width: 900px;
+  padding: 0 16px;
+}
+
+.section-title {
+  font-size: 1.7rem;
+  color: #002147;
+  font-weight: 700;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+}
+
+.section-title.center {
+  text-align: center;
+  width: 100%;
+}
+
+.highlights-fx {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.highlight-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px 0 rgba(44,62,80,0.10);
+  padding: 28px 22px;
+  min-width: 220px;
+  max-width: 280px;
+  flex: 1 1 220px;
+  text-align: center;
+  color: #002147;
+  font-size: 1.08rem;
+  transition: box-shadow 0.2s;
+}
+
+.highlight-card:hover {
+  box-shadow: 0 8px 32px 0 #f1c40f33;
+}
+
+.how-works-list {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: left;
+  font-size: 1.08rem;
+  color: #002147;
+  padding-left: 18px;
+  line-height: 1.7;
+}
+
+.testimonials-carousel {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.testimonial-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px 0 rgba(44,62,80,0.10);
+  padding: 24px 18px;
+  min-width: 220px;
+  max-width: 280px;
+  flex: 1 1 220px;
+  text-align: center;
+  color: #002147;
+  font-size: 1.08rem;
+  transition: box-shadow 0.2s;
+}
+
+.testimonial-card strong {
+  display: block;
+  margin-top: 10px;
+  color: #f1c40f;
+}
+
+.animate-fadein {
+  animation: fadein 0.7s cubic-bezier(.39,.58,.57,1.01);
+}
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .highlights-fx, .testimonials-carousel {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+@media (max-width: 600px) {
+  .hero-title {
+    font-size: 1.3rem;
+  }
+  .section-title {
+    font-size: 1.1rem;
+  }
+}

@@ -38,6 +38,43 @@ router.get('/', (req, res) => {
       console.error('Error fetching flights:', err);
       return res.status(500).json({ error: 'Failed to fetch flights' });
     }
+    if (results.length > 0) return res.json(results);
+
+    // If no flights found, generate dummy flights dynamically
+    if (origin && destination && departure_date) {
+      // Optionally, fetch airport codes/cities from Airports table for realism
+      const dummyFlights = [];
+      for (let i = 0; i < 3; i++) {
+        dummyFlights.push({
+          id: 10000 + i,
+          flight_number: `DYN${Math.floor(Math.random() * 900 + 100)}`,
+          origin_airport_name: origin,
+          origin_airport_code: origin.slice(0,3).toUpperCase(),
+          origin_city: origin,
+          origin_country: '',
+          destination_airport_name: destination,
+          destination_airport_code: destination.slice(0,3).toUpperCase(),
+          destination_city: destination,
+          destination_country: '',
+          departure_date,
+          departure_time: `${8 + i * 3}:00:00`,
+          arrival_date: departure_date,
+          arrival_time: `${12 + i * 3}:00:00`,
+          price: (500 + Math.random() * 500).toFixed(2),
+          seats: 100,
+          class: ['Economy', 'Business', 'First'][i % 3],
+        });
+      }
+      return res.json(dummyFlights);
+    }
+    res.json([]);
+  });
+});
+
+// GET /airports - Get all airports for dropdowns
+router.get('/airports', (req, res) => {
+  db.query('SELECT * FROM Airports', (err, results) => {
+    if (err) return res.status(500).json({ error: 'Failed to fetch airports' });
     res.json(results);
   });
 });

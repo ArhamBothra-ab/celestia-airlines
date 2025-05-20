@@ -84,12 +84,11 @@ router.get('/tickets', auth, (req, res) => {
 
 // POST /bookings - Create a new booking with seat check
 router.post('/', auth, (req, res) => {
-  const { flight_id } = req.body;
+  const { flight_id, flight } = req.body;
   const user_id = req.user.userId;
 
-  if (!flight_id) {
-    console.error('No flight_id provided');
-    return res.status(400).json({ error: 'Flight ID is required' });
+  if (!flight_id && !flight) {
+    return res.status(400).json({ error: 'Flight ID or flight details required' });
   }
 
   db.getConnection((err, connection) => {
@@ -100,70 +99,105 @@ router.post('/', auth, (req, res) => {
     connection.beginTransaction(err => {
       if (err) {
         connection.release();
-        console.error('Error starting transaction:', err);
         return res.status(500).json({ error: 'Database error' });
       }
-      connection.query('SELECT * FROM Flights WHERE id = ? FOR UPDATE', [flight_id], (err, results) => {
-        if (err) {
-          console.error('Error selecting flight:', err);
-          return connection.rollback(() => {
-            connection.release();
-            res.status(500).json({ error: 'Database error' });
+      // If flight_id is provided, try to find the flight
+      const findFlight = (cb) => {
+        if (flight_id) {
+          connection.query('SELECT * FROM Flights WHERE id = ? FOR UPDATE', [flight_id], (err, results) => {
+            if (err) return cb(err);
+            if (results.length > 0) return cb(null, results[0]);
+            // If not found and flight details provided, insert it
+            if (flight) {
+              insertFlight(cb);
+            } else {
+              cb(new Error('Flight not found'));
+            }
           });
+        } else if (flight) {
+          insertFlight(cb);
+        } else {
+          cb(new Error('No flight info'));
         }
-        if (results.length === 0) {
-          console.error('Flight not found:', flight_id);
-          return connection.rollback(() => {
-            connection.release();
-            res.status(404).json({ error: 'Flight not found' });
+      };
+      // Insert the flight into Flights table
+      function insertFlight(cb) {
+        const f = flight;
+        // Required: origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_date, arrival_time, price, seats, class, flight_number
+        const sql = `INSERT INTO Flights (flight_number, origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_date, arrival_time, price, seats, class) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        connection.query(sql, [
+          f.flight_number,
+          f.origin_airport_id,
+          f.destination_airport_id,
+          f.departure_date,
+          f.departure_time,
+          f.arrival_date,
+          f.arrival_time,
+          f.price || 100,
+          f.seats || 20,
+          f.class || 'Economy'
+        ], (err, result) => {
+          if (err) return cb(err);
+          connection.query('SELECT * FROM Flights WHERE id = ? FOR UPDATE', [result.insertId], (err, results) => {
+            if (err) return cb(err);
+            cb(null, results[0]);
           });
-        }
-        const flight = results[0];
-        if (flight.seats <= 0) {
-          console.error('No seats available for flight:', flight_id);
-          return connection.rollback(() => {
+        });
+      }
+      // Main booking logic
+      findFlight((err, flightRow) => {
+        if (err || !flightRow) {
+          connection.rollback(() => {
             connection.release();
-            res.status(400).json({ error: 'No seats available for this flight' });
+            return res.status(404).json({ error: 'Flight not found and could not be created.' });
           });
+          return;
         }
-        connection.query('SELECT * FROM Bookings WHERE user_id = ? AND flight_id = ?', [user_id, flight_id], (err, results) => {
+        if (flightRow.seats <= 0) {
+          connection.rollback(() => {
+            connection.release();
+            return res.status(400).json({ error: 'No seats available for this flight' });
+          });
+          return;
+        }
+        connection.query('SELECT * FROM Bookings WHERE user_id = ? AND flight_id = ?', [user_id, flightRow.id], (err, results) => {
           if (err) {
-            console.error('Error checking existing booking:', err);
-            return connection.rollback(() => {
+            connection.rollback(() => {
               connection.release();
-              res.status(500).json({ error: 'Database error' });
+              return res.status(500).json({ error: 'Database error' });
             });
+            return;
           }
           if (results.length > 0) {
-            console.error('User already has a booking for this flight:', user_id, flight_id);
-            return connection.rollback(() => {
+            connection.rollback(() => {
               connection.release();
-              res.status(400).json({ error: 'You already have a booking for this flight' });
+              return res.status(400).json({ error: 'You already have a booking for this flight' });
             });
+            return;
           }
-          connection.query('UPDATE Flights SET seats = seats - 1 WHERE id = ?', [flight_id], (err, updateResult) => {
+          connection.query('UPDATE Flights SET seats = seats - 1 WHERE id = ?', [flightRow.id], (err, updateResult) => {
             if (err) {
-              console.error('Error updating seat count:', err);
-              return connection.rollback(() => {
+              connection.rollback(() => {
                 connection.release();
-                res.status(500).json({ error: 'Failed to update seat count' });
+                return res.status(500).json({ error: 'Failed to update seat count' });
               });
+              return;
             }
-            connection.query('INSERT INTO Bookings (user_id, flight_id, payment_status) VALUES (?, ?, ?)', [user_id, flight_id, 'Pending'], (err, result) => {
+            connection.query('INSERT INTO Bookings (user_id, flight_id, payment_status) VALUES (?, ?, ?)', [user_id, flightRow.id, 'Pending'], (err, result) => {
               if (err) {
-                console.error('Error creating booking:', err);
-                return connection.rollback(() => {
+                connection.rollback(() => {
                   connection.release();
-                  res.status(500).json({ error: 'Failed to create booking', details: err.message });
+                  return res.status(500).json({ error: 'Failed to create booking', details: err.message });
                 });
+                return;
               }
               connection.commit(err => {
                 if (err) {
-                  console.error('Error committing booking:', err);
-                  return connection.rollback(() => {
+                  connection.rollback(() => {
                     connection.release();
-                    res.status(500).json({ error: 'Failed to commit booking' });
+                    return res.status(500).json({ error: 'Failed to commit booking' });
                   });
+                  return;
                 }
                 const getBookingSql = `
                   SELECT b.*, 
@@ -179,7 +213,6 @@ router.post('/', auth, (req, res) => {
                 connection.query(getBookingSql, [result.insertId], (err, bookingResults) => {
                   connection.release();
                   if (err) {
-                    console.error('Error fetching new booking:', err);
                     return res.status(500).json({ error: 'Failed to fetch booking details' });
                   }
                   res.status(201).json(bookingResults[0]);

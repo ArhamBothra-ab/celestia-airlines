@@ -1,58 +1,64 @@
+import './Home.css';
 import planeImage from '../assets/plane.jpg';
 
 function Home() {
   return (
-    <div>
+    <div className="home-page-fx animate-fadein">
       {/* Hero Section */}
-      <div
-        className="hero"
-        style={{
-          backgroundImage: `url(${planeImage})`,
-        }}
-      >
-        <h1>Welcome to Celestia Airlines ✈️</h1>
-        <p>Fly Beyond the Skies — Book Your Dream Journey Today!</p>
+      <div className="hero-fx" style={{ backgroundImage: `url(${planeImage})` }}>
+        <div className="hero-overlay">
+          <h1 className="hero-title">Welcome to Celestia Airlines ✈️</h1>
+          <p className="hero-desc">Book your next journey with confidence and comfort.</p>
+          <a href="/flights" className="primary-btn hero-btn">Find Flights</a>
+        </div>
       </div>
 
-      {/* About Us Section */}
+      {/* Why Choose Us Section */}
       <section className="section about-section">
-        <h2>About Us</h2>
-        <p>
-          At Celestia Airlines, we believe traveling is more than reaching a destination — it's about experiencing
-          comfort, luxury, and memories along the way. Our commitment to excellence ensures your journey is unforgettable.
-        </p>
-
-        <div className="highlights">
-          <div className="highlight">
-            <h3>🌍 Global Reach</h3>
-            <p>Serving over 100 destinations worldwide with premium flight options.</p>
+        <h2 className="section-title">Why Choose Celestia?</h2>
+        <div className="highlights-fx">
+          <div className="highlight-card">
+            <h3>🌍 Global Destinations</h3>
+            <p>Fly to 100+ cities worldwide with seamless connections.</p>
           </div>
-          <div className="highlight">
-            <h3>✨ Luxury Experience</h3>
-            <p>Top-class in-flight amenities and personalized services.</p>
+          <div className="highlight-card">
+            <h3>🛡️ Secure Booking</h3>
+            <p>Real-time seat availability and secure payment processing.</p>
           </div>
-          <div className="highlight">
-            <h3>🔔 24/7 Customer Support</h3>
-            <p>Dedicated support team ready to assist you anytime, anywhere.</p>
+          <div className="highlight-card">
+            <h3>💺 Comfort & Service</h3>
+            <p>Modern aircraft, friendly staff, and 24/7 support.</p>
           </div>
         </div>
       </section>
 
-      {/* Popular Destinations Section */}
-      <section className="section destinations-section">
-        <h2>Popular Destinations</h2>
-        <div className="gallery">
-          <div className="card">
-            <h3>Paris, France</h3>
-            <p>City of lights and love, offering world-class dining and iconic landmarks.</p>
+      {/* How It Works Section */}
+      <section className="section">
+        <h2 className="section-title center">How It Works</h2>
+        <ol className="how-works-list">
+          <li>Register or log in to your account.</li>
+          <li>Search for flights by origin, destination, and date.</li>
+          <li>Book your preferred flight and pay securely.</li>
+          <li>Receive your e-ticket instantly after payment.</li>
+          <li>Manage your bookings and tickets from your dashboard.</li>
+        </ol>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="section">
+        <h2 className="section-title center">What Our Passengers Say</h2>
+        <div className="testimonials-carousel">
+          <div className="testimonial-card">
+            <p>“The in-flight meals were surprisingly delicious and the staff was super friendly!”</p>
+            <strong>- Maria, Food Blogger</strong>
           </div>
-          <div className="card">
-            <h3>New York, USA</h3>
-            <p>The city that never sleeps, full of culture and entertainment.</p>
+          <div className="testimonial-card">
+            <p>“I booked last minute and still got a great seat. Will fly again!”</p>
+            <strong>- Jamal, Startup Founder</strong>
           </div>
-          <div className="card">
-            <h3>Dubai, UAE</h3>
-            <p>Luxury, shopping, and modern marvels await you in Dubai.</p>
+          <div className="testimonial-card">
+            <p>“Loved the smooth check-in process and the app notifications.”</p>
+            <strong>- Zoe, Digital Nomad</strong>
           </div>
         </div>
       </section>

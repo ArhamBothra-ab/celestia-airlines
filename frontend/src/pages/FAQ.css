@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
+
+.faq-page-fx {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: linear-gradient(120deg, #f1f7ff 0%, #e0e7ff 100%);
+  padding-top: 40px;
+}
+
+.faq-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: #002147;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+
+.faq-list {
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.faq-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px 0 rgba(44,62,80,0.10);
+  padding: 0 0 0 0;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.faq-card.open {
+  box-shadow: 0 6px 32px 0 #f1c40f33;
+}
+
+.faq-question {
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 1.13rem;
+  font-weight: 600;
+  color: #002147;
+  padding: 18px 22px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.faq-card.open .faq-question {
+  background: #f1c40f11;
+}
+
+.faq-toggle {
+  font-size: 1.5rem;
+  color: #f1c40f;
+  margin-left: 10px;
+  font-weight: 700;
+}
+
+.faq-answer {
+  background: #f8fafc;
+  color: #333;
+  font-size: 1.05rem;
+  padding: 0 22px;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(.39,.58,.57,1.01);
+}
+
+.faq-card.open .faq-answer {
+  padding: 12px 22px 18px 22px;
+}
+
+.animate-fadein {
+  animation: fadein 0.7s cubic-bezier(.39,.58,.57,1.01);
+}
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .faq-title {
+    font-size: 1.3rem;
+  }
+  .faq-list {
+    max-width: 98vw;
+  }
+}

@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './Bookings.css';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 function Tickets() {
   const [tickets, setTickets] = useState([]);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTickets();
@@ -27,6 +30,9 @@ function Tickets() {
   return (
     <div className="bookings-page">
       <h2>Your Tickets</h2>
+      {location.state && location.state.fromBookings && (
+        <button className="primary-btn" style={{marginBottom: 20}} onClick={() => navigate('/bookings')}>Back to Bookings</button>
+      )}
       <div className="bookings-grid">
         {tickets.map(ticket => (
           <div key={ticket.id} className="booking-card">
@@ -51,4 +57,4 @@ function Tickets() {
   );
 }
 
-export default Tickets; 
+export default Tickets;

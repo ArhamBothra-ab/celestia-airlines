@@ -56,7 +56,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /users/login - Login user
+// POST /users/login - Login user (supports both Users and Admin tables)
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -64,40 +64,69 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ error: 'Missing email or password' });
   }
 
-  const sql = 'SELECT * FROM Users WHERE email = ?';
-  db.query(sql, [email], async (err, results) => {
+  // Try Users table first
+  const userSql = 'SELECT * FROM Users WHERE email = ?';
+  db.query(userSql, [email], async (err, results) => {
     if (err) {
       console.error('Error finding user:', err);
       return res.status(500).json({ error: 'Database error' });
     }
 
-    if (results.length === 0) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-
-    const user = results[0];
-
-    try {
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) {
-        return res.status(401).json({ error: 'Invalid email or password' });
+    if (results.length > 0) {
+      const user = results[0];
+      try {
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
+          return res.status(401).json({ error: 'Invalid email or password' });
+        }
+        // Generate JWT token (not admin)
+        const token = jwt.sign(
+          { userId: user.id, email: user.email, isAdmin: false },
+          process.env.JWT_SECRET || 'your-secret-key',
+          { expiresIn: '24h' }
+        );
+        return res.json({
+          message: 'Login successful!',
+          token,
+          user: { id: user.id, name: user.name, email: user.email }
+        });
+      } catch (error) {
+        console.error('Error comparing passwords:', error);
+        return res.status(500).json({ error: 'Server error' });
       }
-
-      // Generate JWT token
-      const token = jwt.sign(
-        { userId: user.id, email: user.email },
-        process.env.JWT_SECRET || 'your-secret-key',
-        { expiresIn: '24h' }
-      );
-
-      res.json({
-        message: 'Login successful!',
-        token,
-        user: { id: user.id, name: user.name, email: user.email }
+    } else {
+      // Try Admin table
+      const adminSql = 'SELECT * FROM Admin WHERE email = ?';
+      db.query(adminSql, [email], async (err, adminResults) => {
+        if (err) {
+          console.error('Error finding admin:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        if (adminResults.length === 0) {
+          return res.status(401).json({ error: 'Invalid email or password' });
+        }
+        const admin = adminResults[0];
+        try {
+          const match = await bcrypt.compare(password, admin.password);
+          if (!match) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+          }
+          // Generate JWT token (admin)
+          const token = jwt.sign(
+            { adminId: admin.id, email: admin.email, isAdmin: true },
+            process.env.JWT_SECRET || 'your-secret-key',
+            { expiresIn: '24h' }
+          );
+          return res.json({
+            message: 'Admin login successful!',
+            token,
+            user: { id: admin.id, name: admin.name, email: admin.email, isAdmin: true }
+          });
+        } catch (error) {
+          console.error('Error comparing admin passwords:', error);
+          return res.status(500).json({ error: 'Server error' });
+        }
       });
-    } catch (error) {
-      console.error('Error comparing passwords:', error);
-      res.status(500).json({ error: 'Server error' });
     }
   });
 });
