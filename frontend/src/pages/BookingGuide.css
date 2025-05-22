@@ -1,0 +1,37 @@
+.booking-guide-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.guide-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.guide-content section {
+  margin-bottom: 2rem;
+}
+
+.guide-content h2 {
+  color: #002147;
+  margin-bottom: 1rem;
+}
+
+.guide-content ol,
+.guide-content ul {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.guide-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.guide-content p {
+  color: #333;
+  line-height: 1.6;
+}

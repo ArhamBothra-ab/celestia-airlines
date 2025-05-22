@@ -83,11 +83,17 @@ function AdminPanel() {
     e.preventDefault();
     setUserMessage('');
     setUsersError('');
+    let submitData = { ...userForm };
+    if (editUserId && !userForm.password) {
+      // Don't send password if blank on edit
+      const { password, ...rest } = submitData;
+      submitData = rest;
+    }
     if (editUserId) {
       fetch(`${API}/admin/users/${editUserId}`, {
         method: 'PUT',
         headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(userForm)
+        body: JSON.stringify(submitData)
       })
         .then(res => res.json())
         .then(data => {
@@ -100,7 +106,7 @@ function AdminPanel() {
       fetch(`${API}/admin/users`, {
         method: 'POST',
         headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(userForm)
+        body: JSON.stringify(submitData)
       })
         .then(res => res.json())
         .then(data => {
@@ -223,6 +229,7 @@ function AdminPanel() {
       {tab === 'users' && (
         <div>
           <h3>Users</h3>
+          <div style={{color:'#b71c1c',fontWeight:500,marginBottom:8,fontSize:'0.98rem'}}>Profile changes will be visible to the user after their next login.</div>
           {userMessage && <div style={{marginBottom:8, color:'#1a237e', fontWeight:500}}>{userMessage}</div>}
           {usersError && <div style={{marginBottom:8, color:'#b71c1c', fontWeight:500}}>{usersError}</div>}
           <form onSubmit={handleUserSubmit} style={{ marginBottom: 20 }} aria-label="Add or edit user form">

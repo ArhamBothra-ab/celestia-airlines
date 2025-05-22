@@ -128,7 +128,7 @@ function Profile() {
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     try {
-      await api.changePassword(passwords);
+      await api.changePassword({ current: passwords.current, newPassword: passwords.new });
       setPasswords({ current: '', new: '' });
       notify.success('Password changed successfully!');
     } catch (err) {

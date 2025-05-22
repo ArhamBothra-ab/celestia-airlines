@@ -70,11 +70,12 @@
   cursor: pointer;
   font-size: 1.15rem;
   font-weight: 700;
-  margin-top: 10px;
+  margin: 10px auto 0;
   box-shadow: none !important;
   transition: background 0.2s, color 0.2s;
   width: 100%;
   max-width: 220px;
+  display: block;
 }
 
 .auth-button:hover {
@@ -88,22 +89,7 @@
   color: #666;
 }
 
-.switch-button {
-  background: none;
-  border: none;
-  color: var(--accent-blue) !important;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0;
-  margin-left: 5px;
-  font-weight: 600;
-  text-decoration: underline;
-  transition: color 0.2s;
-}
 
-.switch-button:hover {
-  color: var(--primary-blue) !important;
-}
 
 .secondary-btn {
   background: var(--white) !important;
@@ -160,6 +146,37 @@
   box-shadow: 0 2px 8px #3498db22 !important;
   background: var(--soft-blue) !important;
 }
+
+.auth-toggle {
+  margin-top: 20px;
+  text-align: right;
+  color: #666;
+}
+
+.auth-toggle p {
+  margin: 0;
+  text-align: right;
+}
+
+.auth-toggle button {
+  background: none !important;
+  border: none !important;
+  color: #002147 !important;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0 !important;
+  margin-left: 5px !important;
+  text-decoration: underline !important;
+  transition: color 0.2s;
+  box-shadow: none !important;
+}
+
+.auth-toggle button:hover {
+  color: #f1c40f !important;
+  background: none !important;
+}
+
+
 
 @media (max-width: 600px) {
   .auth-container {

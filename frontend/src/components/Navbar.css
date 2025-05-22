@@ -1,12 +1,12 @@
 /* Emirates-inspired, modern, sleek navbar using your color scheme */
 .navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 2rem;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 0.5rem 0;
   color: #183251;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
   min-height: 56px;
   font-family: 'Montserrat', Arial, sans-serif;
   position: sticky;
@@ -24,7 +24,7 @@
 }
 
 .navbar-brand {
-  margin-right: auto;
+  flex-shrink: 0;
 }
 
 .navbar-brand a {
@@ -37,45 +37,58 @@
 
 .navbar-links {
   display: flex;
-  align-items: center;
-  gap: 2rem;
-}
-
-.navbar-links a, .navbar-links button {
-  color: #183251;
-  background: none;
-  border: none;
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-  text-decoration: none;
-  padding: 0.3rem 0.7rem;
-  border-radius: 16px;
-  transition: background 0.15s, color 0.15s;
-  cursor: pointer;
-  outline: none;
-  display: flex;
-  align-items: center;
-}
-
-.navbar-links a:hover, .navbar-links button:hover, .navbar-links a.active {
-  background: #597f97;
-  color: #fff;
-}
-
-.nav-link {
-  color: #002147;
-  text-decoration: none;
-  background: none;
-  border: none;
+  list-style: none;
+  margin: 0 0 0 auto;
   padding: 0;
-  font: inherit;
-  cursor: pointer;
-  font-weight: 500;
+  gap: 2rem;
+  align-items: center;
+  justify-content: flex-end;
 }
 
-.nav-link:hover {
+.navbar-links li {
+  display: flex;
+  align-items: right;
+}
+
+.navbar-links a {
+  color: #183251;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: color 0.2s;
+}
+
+.navbar-links a:hover {
   color: #f1c40f;
+}
+
+.auth-section {
+  display: flex;
+  align-items: right;
+  gap: 1rem;
+  margin-left: 2rem;
+}
+
+.profile-link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #183251;
+}
+
+.profile-link span {
+  margin-top: 0;
+  font-size: 1.1rem;
+  text-align: left;
+  display: block;
+}
+
+.navbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
 }
 
 .auth-button {
@@ -95,37 +108,17 @@
 }
 
 .logout-button {
-  background-color: transparent;
-  border: 1px solid #002147;
+  background-color: #f1c40f;
   color: #002147;
-  font-weight: 600;
-  border-radius: 14px;
-  padding: 0.3rem 1rem;
-  margin-left: 0.7rem;
-  font-size: 1rem;
-  box-shadow: 0 2px 8px 0 #18325122;
-  transition: background 0.15s, color 0.15s;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
 }
 .logout-button:hover {
-  background-color: #002147;
-  color: white;
-}
-
-.navbar-avatar-link {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0;
-}
-
-.navbar-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #f1c40f;
-  background: #fff;
-  margin: 0;
+  background-color: #f39c12;
 }
 
 /* Responsive: Hamburger menu for mobile */

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const auth = require('../middleware/auth');
+const bcrypt = require('bcrypt');
 
 // Simple admin check middleware (for demo: email contains 'admin')
 function isAdmin(req, res, next) {
@@ -98,13 +99,26 @@ router.post('/users', auth, isAdmin, (req, res) => {
 });
 
 // PUT /admin/users/:id - Update a user
-router.put('/users/:id', auth, isAdmin, (req, res) => {
-  const { name, email, phone } = req.body;
-  const sql = 'UPDATE Users SET name=?, email=?, phone=? WHERE id=?';
-  db.query(sql, [name, email, phone, req.params.id], (err) => {
-    if (err) return res.status(500).json({ error: 'Failed to update user' });
-    res.json({ message: 'User updated' });
-  });
+router.put('/users/:id', auth, isAdmin, async (req, res) => {
+  const { name, email, phone, password } = req.body;
+  try {
+    if (password && password.trim() !== '') {
+      const hashed = await bcrypt.hash(password, 10);
+      const sql = 'UPDATE Users SET name=?, email=?, phone=?, password=? WHERE id=?';
+      db.query(sql, [name, email, phone, hashed, req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: 'Failed to update user' });
+        res.json({ message: 'User updated' });
+      });
+    } else {
+      const sql = 'UPDATE Users SET name=?, email=?, phone=? WHERE id=?';
+      db.query(sql, [name, email, phone, req.params.id], (err) => {
+        if (err) return res.status(500).json({ error: 'Failed to update user' });
+        res.json({ message: 'User updated' });
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update user' });
+  }
 });
 
 // DELETE /admin/users/:id - Delete a user

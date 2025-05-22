@@ -110,5 +110,23 @@ export const api = {
       headers: authHeader()
     });
     return handleResponse(response);
+  },
+
+  requestPasswordReset: async (data) => {
+    const response = await fetchWithRetry(`${API_BASE_URL}/users/request-reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  resetPassword: async (data) => {
+    const response = await fetchWithRetry(`${API_BASE_URL}/users/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
   }
 };

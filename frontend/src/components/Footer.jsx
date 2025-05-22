@@ -26,7 +26,7 @@ function Footer() {
           <p>24/7 Customer Service</p>
           <p>1-800-CELESTIA</p>
           <p>support@celestiaairlines.com</p>
-          <p>123 Skyway Avenue, Cloud City</p>
+          <p>Electronic City, Bangalore</p>
         </div>
 
         <div className="footer-section">

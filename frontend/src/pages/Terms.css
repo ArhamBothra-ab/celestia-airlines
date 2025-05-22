@@ -1,0 +1,27 @@
+.terms-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.terms-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.terms-content section {
+  margin-bottom: 2rem;
+}
+
+.terms-content h2 {
+  color: #002147;
+  margin-bottom: 1rem;
+}
+
+.terms-content p {
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}

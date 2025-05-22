@@ -78,9 +78,7 @@ function Privacy() {
             <br />
             privacy@celestiaairlines.com
             <br />
-            1234 Skyway Avenue
-            <br />
-            Cloud City, CC 12345
+            Electronic City, Bangalore
           </p>
         </section>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { notify } from '../services/toast';
 import './Auth.css';
@@ -56,7 +56,20 @@ function Auth() {
       notify.success(isLogin ? 'Welcome back!' : 'Registration successful! Welcome aboard!');
       navigate('/flights');
     } catch (err) {
-      notify.error(err.message || 'An error occurred. Please try again.');
+      // Custom error message for wrong password/email
+      const msg = err.message ? err.message.toLowerCase() : '';
+      if (
+        isLogin && (
+          msg.includes('invalid email or password') ||
+          msg.includes('unauthorized') ||
+          msg.includes('401')
+        )
+      ) {
+        setError('Incorrect password or email.');
+        notify.error('Incorrect password or email.');
+      } else {
+        notify.error(err.message || 'An error occurred. Please try again.');
+      }
       setLoading(false);
     }
   };
@@ -113,15 +126,15 @@ function Auth() {
             value={formData.email}
             onChange={handleInputChange}
             required
-          />
-          <input
+          />          <input
             type="password"
             name="password"
             placeholder="Password"
             value={formData.password}
             onChange={handleInputChange}
             required
-          />          <button type="submit" className="auth-button" disabled={loading}>
+          />
+          <button type="submit" className="auth-button" disabled={loading}>
             {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
           </button>
           {error && (
@@ -129,12 +142,19 @@ function Auth() {
               {error}
             </div>
           )}
-        </form>
-        <p className="auth-switch">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <button
-            className="switch-button"
+        </form>        <p className="auth-toggle">          {isLogin ? "Don't have an account? " : "Already have an account? "}
+          <button 
             onClick={() => setIsLogin(!isLogin)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#002147',
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              padding: 0,
+              marginLeft: '5px',
+              fontSize: 'inherit'
+            }}
           >
             {isLogin ? 'Register' : 'Login'}
           </button>

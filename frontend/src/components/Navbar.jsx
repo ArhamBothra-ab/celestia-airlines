@@ -52,29 +52,27 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <div className="navbar-content">
-        <div className="navbar-brand">
-          <Link to="/">Celestia Airlines</Link>
-        </div>
-        <div className="navbar-links" style={{ marginLeft: 'auto' }}>
-          <div className="nav-items">
-            <Link to="/">Home</Link>
-            <Link to="/flights">Flights</Link>
-            {isAuthenticated && <Link to="/bookings">My Bookings</Link>}
-            {isAdmin && <Link to="/admin">Admin Panel</Link>}
-          </div>
-          {isAuthenticated ? (
-            <div className="user-nav" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-              <Link to="/profile" className="profile-link">
-                <img src={avatarUrl} alt="User avatar" className="navbar-avatar" />
-                <span>Profile</span>
-              </Link>
-              <button onClick={handleLogout} className="logout-button">Logout</button>
-            </div>
-          ) : (
-            <Link to="/auth" className="nav-link">Login / Register</Link>
-          )}
-        </div>
+      <div className="navbar-brand">
+        <Link to="/">Celestia Airlines</Link>
+      </div>
+      <ul className="navbar-links">
+        <li><Link to="/">Home</Link></li>
+        <li><Link to="/flights">Flights</Link></li>
+        {isAuthenticated && <li><Link to="/bookings">My Bookings</Link></li>}
+        {isAdmin && <li><Link to="/admin">Admin Panel</Link></li>}
+      </ul>
+      <div className="auth-section">
+        {isAuthenticated ? (
+          <>
+            <Link to="/profile" className="profile-link">
+              <img src={avatarUrl} alt="User avatar" className="navbar-avatar" />
+              <span>Profile</span>
+            </Link>
+            <button onClick={handleLogout} className="logout-button">Logout</button>
+          </>
+        ) : (
+          <Link to="/auth" className="nav-link">Login / Register</Link>
+        )}
       </div>
     </nav>
   );
