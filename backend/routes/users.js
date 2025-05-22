@@ -79,16 +79,16 @@ router.post('/login', async (req, res) => {
         if (!match) {
           return res.status(401).json({ error: 'Invalid email or password' });
         }
-        // Generate JWT token (not admin)
+        // Generate JWT token (set isAdmin if user.isAdmin)
         const token = jwt.sign(
-          { userId: user.id, email: user.email, isAdmin: false },
+          { userId: user.id, email: user.email, isAdmin: !!user.isAdmin },
           process.env.JWT_SECRET || 'your-secret-key',
           { expiresIn: '24h' }
         );
         return res.json({
           message: 'Login successful!',
           token,
-          user: { id: user.id, name: user.name, email: user.email }
+          user: { id: user.id, name: user.name, email: user.email, isAdmin: !!user.isAdmin }
         });
       } catch (error) {
         console.error('Error comparing passwords:', error);

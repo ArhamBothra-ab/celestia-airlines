@@ -32,11 +32,19 @@ function FAQ() {
       <div className="faq-list">
         {faqs.map((item, idx) => (
           <div className={`faq-card ${open===idx?'open':''}`} key={idx}>
-            <button className="faq-question" onClick={()=>setOpen(open===idx?null:idx)}>
-              {item.q}
-              <span className="faq-toggle">{open===idx?'−':'+'}</span>
-            </button>
-            <div className="faq-answer" style={{maxHeight: open===idx?120:0}}>
+            <div className="faq-card-header">
+              <div className="faq-avatar" aria-hidden="true">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="16" cy="16" r="16" fill="#e0e7ff"/>
+                  <path d="M16 17c2.5 0 4.5-2 4.5-4.5S18.5 8 16 8s-4.5 2-4.5 4.5S13.5 17 16 17zm0 2c-3 0-9 1.5-9 4.5V26h18v-2.5c0-3-6-4.5-9-4.5z" fill="#6366f1"/>
+                </svg>
+              </div>
+              <button className="faq-question" onClick={()=>setOpen(open===idx?null:idx)} aria-expanded={open===idx} aria-controls={`faq-answer-${idx}`}> 
+                {item.q}
+                <span className="faq-toggle">{open===idx?'−':'+'}</span>
+              </button>
+            </div>
+            <div className="faq-answer" id={`faq-answer-${idx}`} style={{maxHeight: open===idx?200:0, transition: 'max-height 0.4s cubic-bezier(.4,0,.2,1)'}} aria-hidden={open!==idx}>
               <p>{item.a}</p>
             </div>
           </div>

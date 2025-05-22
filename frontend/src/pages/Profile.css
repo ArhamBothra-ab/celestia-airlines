@@ -1,13 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
 
 .profile-page-fx {
-  min-height: 80vh;
+  min-height: calc(100vh - 180px); /* Ensures page fills viewport minus navbar/footer */
   display: flex;
   flex-direction: column;
   align-items: center;
   font-family: 'Montserrat', Arial, sans-serif;
   background: linear-gradient(120deg, #f1f7ff 0%, #e0e7ff 100%);
   padding-top: 40px;
+  box-sizing: border-box;
 }
 
 .profile-title {
@@ -119,6 +120,9 @@
 }
 
 @media (max-width: 600px) {
+  .profile-page-fx {
+    min-height: calc(100vh - 160px);
+  }
   .profile-card {
     padding: 18px 8px 18px 8px;
   }

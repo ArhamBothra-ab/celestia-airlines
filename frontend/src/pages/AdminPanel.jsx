@@ -11,6 +11,7 @@ function AdminPanel() {
   const [tickets, setTickets] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // --- Fix: Do not use hooks after conditional return ---
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -56,8 +57,6 @@ function AdminPanel() {
       .then(res => res.json()).then(setTickets);
   };
   const authHeader = () => ({ 'Authorization': `Bearer ${localStorage.getItem('token')}` });
-
-  if (!isAdmin) return <div className="bookings-page"><h2>Admin Panel</h2><p>Access denied. Log in as admin.</p></div>;
 
   // --- Admin: Add/Edit/Delete User ---
   const [userForm, setUserForm] = useState({ name: '', email: '', phone: '', password: '' });
@@ -135,6 +134,8 @@ function AdminPanel() {
       fetch(`${API}/admin/flights/${id}`, { method: 'DELETE', headers: authHeader() }).then(fetchFlights);
     }
   };
+
+  if (!isAdmin) return <div className="bookings-page"><h2>Admin Panel</h2><p>Access denied. Log in as admin.</p></div>;
 
   return (
     <div className="bookings-page">

@@ -62,22 +62,34 @@ function Flights() {
       alert('Please log in to book a flight.');
       return;
     }
-    // If the flight is a dummy (id >= 10000), send all details
+    if (!window.confirm('Proceed to payment and book this flight?')) return;
+    // If the flight is a dummy (id >= 10000), send all details including airport codes/cities
     const isDummy = flight.id >= 10000;
-    const payload = isDummy
-      ? { flight: {
-            flight_number: flight.flight_number,
-            origin_airport_id: flight.origin_airport_id,
-            destination_airport_id: flight.destination_airport_id,
-            departure_date: flight.departure_date,
-            departure_time: flight.departure_time,
-            arrival_date: flight.arrival_date || flight.departure_date,
-            arrival_time: flight.arrival_time || flight.departure_time,
-            price: flight.price || 100,
-            seats: flight.seats || 20,
-            class: flight.class || 'Economy'
-        }}
-      : { flight_id };
+    let payload;
+    if (isDummy) {
+      const originAirport = airports.find(a => a.id === searchParams.origin || a.code === flight.origin_airport_code || a.city === flight.origin_city);
+      const destAirport = airports.find(a => a.id === searchParams.destination || a.code === flight.destination_airport_code || a.city === flight.destination_city);
+      payload = {
+        flight: {
+          flight_number: flight.flight_number,
+          origin_airport_id: originAirport ? originAirport.id : null,
+          origin_airport_code: originAirport ? originAirport.code : flight.origin_airport_code,
+          origin_city: originAirport ? originAirport.city : flight.origin_city,
+          destination_airport_id: destAirport ? destAirport.id : null,
+          destination_airport_code: destAirport ? destAirport.code : flight.destination_airport_code,
+          destination_city: destAirport ? destAirport.city : flight.destination_city,
+          departure_date: flight.departure_date,
+          departure_time: flight.departure_time,
+          arrival_date: flight.arrival_date || flight.departure_date,
+          arrival_time: flight.arrival_time || flight.departure_time,
+          price: flight.price || 100,
+          seats: flight.seats || 20,
+          class: flight.class || 'Economy'
+        }
+      };
+    } else {
+      payload = { flight_id };
+    }
     fetch('http://localhost:5000/bookings', {
       method: 'POST',
       headers: {
@@ -91,7 +103,20 @@ function Flights() {
         if (data.error) {
           alert(data.error);
         } else {
-          alert('Booking successful! You can view your booking in My Bookings.');
+          // Immediately mark as paid
+          fetch(`http://localhost:5000/bookings/${data.id}/pay`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+            .then(res => res.json())
+            .then(payData => {
+              if (payData.error) {
+                alert('Booking created, but payment failed: ' + payData.error);
+              } else {
+                alert('Booking and payment successful! You can view your ticket in My Bookings.');
+              }
+            })
+            .catch(err => alert('Booking created, but payment failed: ' + err.message));
         }
       })
       .catch(err => alert('Error booking flight: ' + err.message));

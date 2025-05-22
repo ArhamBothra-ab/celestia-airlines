@@ -73,10 +73,15 @@ router.get('/', (req, res) => {
 
 // GET /airports - Get all airports for dropdowns
 router.get('/airports', (req, res) => {
-  db.query('SELECT * FROM Airports', (err, results) => {
-    if (err) return res.status(500).json({ error: 'Failed to fetch airports' });
-    res.json(results);
-  });
+  db.query(
+    `SELECT * FROM Airports 
+     WHERE city IS NOT NULL AND city != '' AND code IS NOT NULL AND code != ''
+     AND city REGEXP '[a-zA-Z]' AND code REGEXP '[a-zA-Z]'`,
+    (err, results) => {
+      if (err) return res.status(500).json({ error: 'Failed to fetch airports' });
+      res.json(results);
+    }
+  );
 });
 
 // GET /flights/:id - Get a specific flight with airport info

@@ -120,27 +120,44 @@ router.post('/', auth, (req, res) => {
           cb(new Error('No flight info'));
         }
       };
-      // Insert the flight into Flights table
+      // Insert the flight into Flights table, ensuring airports exist
       function insertFlight(cb) {
         const f = flight;
-        // Required: origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_date, arrival_time, price, seats, class, flight_number
-        const sql = `INSERT INTO Flights (flight_number, origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_date, arrival_time, price, seats, class) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        connection.query(sql, [
-          f.flight_number,
-          f.origin_airport_id,
-          f.destination_airport_id,
-          f.departure_date,
-          f.departure_time,
-          f.arrival_date,
-          f.arrival_time,
-          f.price || 100,
-          f.seats || 20,
-          f.class || 'Economy'
-        ], (err, result) => {
+        // Helper to get or insert airport by code/city
+        function getOrInsertAirport(code, city, cb2) {
+          connection.query('SELECT id FROM Airports WHERE code = ? OR city = ? LIMIT 1', [code, city], (err, results) => {
+            if (err) return cb2(err);
+            if (results.length > 0) return cb2(null, results[0].id);
+            // Insert minimal airport
+            connection.query('INSERT INTO Airports (name, code, city, country) VALUES (?, ?, ?, ?)', [city, code, city, ''], (err, result) => {
+              if (err) return cb2(err);
+              cb2(null, result.insertId);
+            });
+          });
+        }
+        getOrInsertAirport(f.origin_airport_code, f.origin_city, (err, originId) => {
           if (err) return cb(err);
-          connection.query('SELECT * FROM Flights WHERE id = ? FOR UPDATE', [result.insertId], (err, results) => {
+          getOrInsertAirport(f.destination_airport_code, f.destination_city, (err, destId) => {
             if (err) return cb(err);
-            cb(null, results[0]);
+            const sql = `INSERT INTO Flights (flight_number, origin_airport_id, destination_airport_id, departure_date, departure_time, arrival_date, arrival_time, price, seats, class) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            connection.query(sql, [
+              f.flight_number,
+              originId,
+              destId,
+              f.departure_date,
+              f.departure_time,
+              f.arrival_date,
+              f.arrival_time,
+              f.price || 100,
+              f.seats || 20,
+              f.class || 'Economy'
+            ], (err, result) => {
+              if (err) return cb(err);
+              connection.query('SELECT * FROM Flights WHERE id = ? FOR UPDATE', [result.insertId], (err, results) => {
+                if (err) return cb(err);
+                cb(null, results[0]);
+              });
+            });
           });
         });
       }
