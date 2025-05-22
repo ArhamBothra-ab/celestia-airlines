@@ -14,7 +14,7 @@ function isAdmin(req, res, next) {
 
 // GET /admin/users - View all users
 router.get('/users', auth, isAdmin, (req, res) => {
-  db.query('SELECT id, name, email, phone, created_at FROM Users', (err, results) => {
+  db.query('SELECT id, name, email, phone, avatar_url, created_at FROM Users', (err, results) => {
     if (err) return res.status(500).json({ error: 'Failed to fetch users' });
     res.json(results);
   });
@@ -115,4 +115,4 @@ router.delete('/users/:id', auth, isAdmin, (req, res) => {
   });
 });
 
-module.exports = router; 
+module.exports = router;

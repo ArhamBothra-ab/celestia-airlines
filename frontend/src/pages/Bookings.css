@@ -22,10 +22,11 @@
 }
 
 .booking-card {
-  background: white;
+  background: #fff;
+  color: #183251;
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px #597f9722;
 }
 
 .booking-header {
@@ -117,6 +118,13 @@
   color: #002147;
   font-weight: 700;
   box-shadow: 0 2px 8px 0 #f1c40f22;
+}
+
+/* Removed all yellow, using only the provided palette */
+.booking-card, .flight-card, .destination-card, .testimonial-card {
+  background: #fff;
+  color: #183251;
+  box-shadow: 0 2px 12px #597f9722;
 }
 
 @media (max-width: 768px) {

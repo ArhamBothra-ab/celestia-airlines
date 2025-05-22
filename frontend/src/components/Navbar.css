@@ -1,73 +1,125 @@
+/* Emirates-inspired, modern, sleek navbar using your color scheme */
 .navbar {
-  background: white;
-  padding: 15px 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #c4cbd8;
+  color: #183251;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: flex-end;
+  padding: 0 1.2rem;
+  min-height: 56px;
+  box-shadow: 0 2px 16px 0 rgba(24,50,81,0.10);
+  font-family: 'Montserrat', Arial, sans-serif;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 100;
+}
+
+.navbar-brand {
+  margin-right: auto;
 }
 
 .navbar-brand a {
-  color: #2c3e50;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #183251;
+  letter-spacing: 0.5px;
   text-decoration: none;
-  font-size: 1.5rem;
-  font-weight: bold;
+  transition: color 0.2s;
 }
 
 .navbar-links {
   display: flex;
-  gap: 20px;
+  align-items: center;
+  gap: 1.1rem;
+}
+
+.navbar-links a, .navbar-links button {
+  color: #183251;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  padding: 0.3rem 0.7rem;
+  border-radius: 16px;
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+  outline: none;
+  display: flex;
   align-items: center;
 }
 
-.navbar-links a {
-  color: #666;
-  text-decoration: none;
-  font-size: 1rem;
-  transition: color 0.2s ease;
-}
-
-.navbar-links a:hover {
-  color: #3498db;
-}
-
-.logout-button {
-  background: none;
-  border: none;
-  color: #e74c3c;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0;
-}
-
-.logout-button:hover {
-  color: #c0392b;
+.navbar-links a:hover, .navbar-links button:hover, .navbar-links a.active {
+  background: #597f97;
+  color: #fff;
 }
 
 .auth-button {
-  background: #3498db;
-  color: white !important;
-  padding: 8px 16px;
-  border-radius: 4px;
-  transition: background 0.2s ease !important;
+  background: #597f97;
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 14px;
+  padding: 0.4rem 1.1rem;
+  margin-left: 0.7rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px 0 #18325122;
+  transition: background 0.15s, color 0.15s;
 }
-
 .auth-button:hover {
-  background: #2980b9;
+  background: #183251;
+  color: #c4cbd8 !important;
 }
 
-@media (max-width: 768px) {
-  .navbar {
-    padding: 15px;
-    flex-direction: column;
-    gap: 15px;
-  }
+.logout-button {
+  background: #c8c4c4;
+  color: #183251;
+  font-weight: 600;
+  border-radius: 14px;
+  padding: 0.3rem 1rem;
+  margin-left: 0.7rem;
+  font-size: 1rem;
+  border: none;
+  box-shadow: 0 2px 8px 0 #18325122;
+  transition: background 0.15s, color 0.15s;
+}
+.logout-button:hover {
+  background: #6c747c;
+  color: #fff;
+}
 
+.navbar-avatar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
+}
+
+.navbar-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #597f97;
+  background: #fff;
+  margin: 0;
+}
+
+/* Responsive: Hamburger menu for mobile */
+@media (max-width: 900px) {
+  .navbar {
+    padding: 0 0.5rem;
+    min-height: 48px;
+  }
   .navbar-links {
-    width: 100%;
-    justify-content: center;
+    gap: 0.5rem;
+  }
+  .auth-button, .logout-button {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.95rem;
+  }
+  .navbar-avatar {
+    width: 22px;
+    height: 22px;
   }
 }

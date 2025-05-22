@@ -79,8 +79,8 @@ nav ul li a:hover {
 }
 
 .highlight {
-  background: #f1c40f;
-  color: #003366;
+  background: #597f97;
+  color: #fff;
   padding: 20px;
   border-radius: 10px;
   min-width: 250px;
@@ -97,8 +97,8 @@ nav ul li a:hover {
 }
 
 .card {
-  background: #003366;
-  color: white;
+  background: #597f97;
+  color: #fff;
   padding: 20px;
   border-radius: 10px;
   min-width: 250px;

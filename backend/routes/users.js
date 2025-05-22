@@ -3,50 +3,58 @@ const router = express.Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
 
-// POST /users/register - Register a new user
-router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+// Set up multer for avatar uploads (if not already present)
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../uploads/avatars'));
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, `user_${Date.now()}${ext}`);
+  }
+});
+const upload = multer({ storage });
 
+// POST /users/register - Register a new user (with avatar support)
+router.post('/register', upload.single('avatar'), async (req, res) => {
+  const { name, email, password, phone, dob, address } = req.body;
+  let avatarUrl = null;
+  if (req.file) {
+    avatarUrl = `/uploads/avatars/${req.file.filename}`;
+  }
   if (!name || !email || !password) {
     return res.status(400).json({ error: 'Missing name, email or password' });
   }
-
   try {
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Check if user already exists
     const checkSql = 'SELECT * FROM Users WHERE email = ?';
     db.query(checkSql, [email], async (err, results) => {
       if (err) {
         console.error('Error checking user:', err);
         return res.status(500).json({ error: 'Database error' });
       }
-
       if (results.length > 0) {
         return res.status(400).json({ error: 'Email already registered' });
       }
-
-      // Insert new user
-      const sql = 'INSERT INTO Users (name, email, password) VALUES (?, ?, ?)';
-      db.query(sql, [name, email, hashedPassword], (err, result) => {
+      // Insert new user with all fields
+      const sql = 'INSERT INTO Users (name, email, password, phone, dob, address, avatar_url) VALUES (?, ?, ?, ?, ?, ?, ?)';
+      db.query(sql, [name, email, hashedPassword, phone || null, dob || null, address || null, avatarUrl], (err, result) => {
         if (err) {
           console.error('Error registering user:', err);
           return res.status(500).json({ error: 'Failed to register user' });
         }
-
-        // Generate JWT token
         const token = jwt.sign(
-          { userId: result.insertId, email },
+          { userId: result.insertId, email, name, phone, dob, address, avatar: avatarUrl },
           process.env.JWT_SECRET || 'your-secret-key',
           { expiresIn: '24h' }
         );
-
         res.status(201).json({
           message: 'User registered successfully!',
           token,
-          user: { id: result.insertId, name, email }
+          user: { id: result.insertId, name, email, phone, dob, address, avatar: avatarUrl }
         });
       });
     });
@@ -64,7 +72,7 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ error: 'Missing email or password' });
   }
 
-  // Try Users table first
+  // Try Users table
   const userSql = 'SELECT * FROM Users WHERE email = ?';
   db.query(userSql, [email], async (err, results) => {
     if (err) {
@@ -128,6 +136,69 @@ router.post('/login', async (req, res) => {
         }
       });
     }
+  });
+});
+
+// PUT /users/profile - Update user profile
+router.put('/profile', require('../middleware/auth'), (req, res) => {
+  const userId = req.user.userId;
+  const { name, email, phone, dob, address, avatar } = req.body;
+  const sql = 'UPDATE Users SET name=?, email=?, phone=?, dob=?, address=?, avatar_url=? WHERE id=?';
+  db.query(sql, [name, email, phone, dob, address, avatar, userId], (err) => {
+    if (err) return res.status(500).json({ error: 'Failed to update profile' });
+    // Fetch updated user and return new JWT token
+    db.query('SELECT * FROM Users WHERE id=?', [userId], (err2, results) => {
+      if (err2 || results.length === 0) {
+        return res.status(500).json({ error: 'Failed to fetch updated user' });
+      }
+      const user = results[0];
+      const token = jwt.sign(
+        { userId: user.id, email: user.email, name: user.name, phone: user.phone, dob: user.dob, address: user.address, avatar: user.avatar_url, isAdmin: !!user.isAdmin },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '24h' }
+      );
+      res.json({ message: 'Profile updated', token });
+    });
+  });
+});
+
+// POST /users/change-password - Change user password
+router.post('/change-password', require('../middleware/auth'), async (req, res) => {
+  const userId = req.user.userId;
+  const { current, newPassword } = req.body;
+  if (!current || !newPassword) return res.status(400).json({ error: 'Missing fields' });
+  db.query('SELECT password FROM Users WHERE id=?', [userId], async (err, results) => {
+    if (err || results.length === 0) return res.status(400).json({ error: 'User not found' });
+    const match = await bcrypt.compare(current, results[0].password);
+    if (!match) return res.status(401).json({ error: 'Current password incorrect' });
+    const hashed = await bcrypt.hash(newPassword, 10);
+    db.query('UPDATE Users SET password=? WHERE id=?', [hashed, userId], err2 => {
+      if (err2) return res.status(500).json({ error: 'Failed to update password' });
+      res.json({ message: 'Password changed successfully' });
+    });
+  });
+});
+
+// POST /users/upload-avatar - Upload avatar image
+router.post('/upload-avatar', require('../middleware/auth'), upload.single('avatar'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+  db.query('UPDATE Users SET avatar_url=? WHERE id=?', [avatarUrl, req.user.userId], err => {
+    if (err) return res.status(500).json({ error: 'Failed to save avatar' });
+    // Issue a new JWT token with updated avatar
+    const getUserSql = 'SELECT * FROM Users WHERE id = ?';
+    db.query(getUserSql, [req.user.userId], (err2, results) => {
+      if (err2 || results.length === 0) {
+        return res.status(500).json({ error: 'Failed to fetch user for token' });
+      }
+      const user = results[0];
+      const token = jwt.sign(
+        { userId: user.id, email: user.email, name: user.name, phone: user.phone, dob: user.dob, address: user.address, avatar: user.avatar_url, isAdmin: !!user.isAdmin },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '24h' }
+      );
+      res.json({ message: 'Avatar uploaded', avatarUrl, token });
+    });
   });
 });
 

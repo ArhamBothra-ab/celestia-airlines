@@ -22,8 +22,9 @@
 
 .contact-card {
   background: #fff;
+  color: #183251;
   border-radius: 18px;
-  box-shadow: 0 6px 32px 0 rgba(44,62,80,0.13);
+  box-shadow: 0 4px 18px 0 rgba(44,62,80,0.10);
   padding: 36px 32px 28px 32px;
   max-width: 420px;
   width: 100%;

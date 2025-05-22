@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 function Bookings() {
   const [bookings, setBookings] = useState([]);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,7 +14,8 @@ function Bookings() {
   const fetchBookings = () => {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('Please log in to view your bookings.');
+      setError('Please log in to view your bookings.');
+      setBookings([]);
       return;
     }
     fetch('http://localhost:5000/bookings', {
@@ -22,8 +24,22 @@ function Bookings() {
       }
     })
       .then(res => res.json())
-      .then(data => setBookings(data))
-      .catch(err => console.error('Error fetching bookings:', err));
+      .then(data => {
+        if (Array.isArray(data)) {
+          setBookings(data);
+          setError("");
+        } else if (data.error) {
+          setError(data.error);
+          setBookings([]);
+        } else {
+          setError('Unexpected response from server.');
+          setBookings([]);
+        }
+      })
+      .catch(err => {
+        setError('Error fetching bookings: ' + err.message);
+        setBookings([]);
+      });
   };
 
   const handleCancel = (bookingId) => {
@@ -50,12 +66,16 @@ function Bookings() {
   return (
     <div className="bookings-page">
       <h2>Your Bookings</h2>
-      {bookings.length === 0 ? (
+      {error && (
+        <div className="bookings-error" style={{color:'#b71c1c',marginBottom:16,fontWeight:500}}>{error}</div>
+      )}
+      {bookings.length === 0 && !error ? (
         <div className="bookings-empty" style={{boxShadow: 'none', background: 'none', maxWidth: '100vw', width: '100vw', alignSelf: 'center'}}>
           <p>You have no current bookings.</p>
           <a href="/flights" className="primary-btn">Book Now</a>
         </div>
-      ) : (
+      ) : null}
+      {bookings.length > 0 && !error && (
         <div className="bookings-grid">
           {bookings.map(booking => (
             <div key={booking.id} className="booking-card">
