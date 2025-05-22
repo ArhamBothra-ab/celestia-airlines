@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import './Bookings.css';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { notify } from '../services/toast';
+import ConfirmDialog from '../components/ConfirmDialog';
+import './Bookings.css';
 
 function Bookings() {
   const [bookings, setBookings] = useState([]);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    bookingId: null
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,57 +22,93 @@ function Bookings() {
   const fetchBookings = () => {
     const token = localStorage.getItem('token');
     if (!token) {
-      setError('Please log in to view your bookings.');
-      setBookings([]);
+      notify.warn('Please log in to view your bookings');
+      navigate('/auth');
       return;
     }
-    fetch('http://localhost:5000/bookings', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(res => res.json())
+
+    setLoading(true);
+    api.getBookings()
       .then(data => {
-        if (Array.isArray(data)) {
-          setBookings(data);
-          setError("");
-        } else if (data.error) {
-          setError(data.error);
-          setBookings([]);
-        } else {
-          setError('Unexpected response from server.');
-          setBookings([]);
+        setBookings(data);
+        setError('');
+        setLoading(false);
+        if (data.length === 0) {
+          notify.info('You have no bookings yet');
         }
       })
       .catch(err => {
-        setError('Error fetching bookings: ' + err.message);
+        if (err.message.includes('Authentication')) {
+          localStorage.removeItem('token');
+          notify.error('Your session has expired. Please log in again');
+          navigate('/auth');
+        } else {
+          notify.error(err.message || 'Failed to fetch your bookings');
+        }
         setBookings([]);
+        setLoading(false);
       });
   };
 
   const handleCancel = (bookingId) => {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('Please log in to cancel bookings.');
+      notify.warn('Please log in to cancel bookings');
+      navigate('/auth');
       return;
     }
-    if (window.confirm('Are you sure you want to cancel this booking?')) {
-      fetch(`http://localhost:5000/bookings/${bookingId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-        .then(() => {
-          fetchBookings();
-          alert('Booking cancelled successfully');
-        })
-        .catch(err => alert('Error cancelling booking: ' + err.message));
+
+    setConfirmDialog({
+      isOpen: true,
+      bookingId: bookingId
+    });
+  };
+
+  const confirmCancellation = async () => {
+    const bookingId = confirmDialog.bookingId;
+    setConfirmDialog({ isOpen: false, bookingId: null });
+
+    try {
+      setLoading(true);
+      await api.cancelBooking(bookingId);
+      notify.success('Booking cancelled successfully');
+      fetchBookings();
+    } catch (err) {
+      notify.error(err.message || 'Failed to cancel booking');
+      setLoading(false);
     }
   };
 
+  const handlePayment = async (bookingId) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      notify.warn('Please log in to make payment');
+      navigate('/auth');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.payBooking(bookingId);
+      notify.success('Payment successful! Your ticket has been generated.');
+      fetchBookings();
+    } catch (err) {
+      notify.error(err.message || 'Payment failed. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="loading">Loading bookings...</div>;
+
   return (
     <div className="bookings-page">
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        message="Are you sure you want to cancel this booking?"
+        onConfirm={confirmCancellation}
+        onCancel={() => setConfirmDialog({ isOpen: false, bookingId: null })}
+      />
+
       <h2>Your Bookings</h2>
       {error && (
         <div className="bookings-error" style={{color:'#b71c1c',marginBottom:16,fontWeight:500}}>{error}</div>

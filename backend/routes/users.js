@@ -86,17 +86,34 @@ router.post('/login', async (req, res) => {
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
           return res.status(401).json({ error: 'Invalid email or password' });
-        }
-        // Generate JWT token (set isAdmin if user.isAdmin)
+        }        // Generate JWT token (set isAdmin if user.isAdmin)
         const token = jwt.sign(
-          { userId: user.id, email: user.email, isAdmin: !!user.isAdmin },
+          { 
+            userId: user.id, 
+            email: user.email,
+            name: user.name,
+            phone: user.phone,
+            dob: user.dob,
+            address: user.address,
+            avatar: user.avatar_url, 
+            isAdmin: !!user.isAdmin 
+          },
           process.env.JWT_SECRET || 'your-secret-key',
           { expiresIn: '24h' }
         );
         return res.json({
           message: 'Login successful!',
           token,
-          user: { id: user.id, name: user.name, email: user.email, isAdmin: !!user.isAdmin }
+          user: { 
+            id: user.id, 
+            name: user.name, 
+            email: user.email,
+            phone: user.phone,
+            dob: user.dob,
+            address: user.address,
+            avatar: user.avatar_url,
+            isAdmin: !!user.isAdmin 
+          }
         });
       } catch (error) {
         console.error('Error comparing passwords:', error);
@@ -140,26 +157,94 @@ router.post('/login', async (req, res) => {
 });
 
 // PUT /users/profile - Update user profile
-router.put('/profile', require('../middleware/auth'), (req, res) => {
+router.put('/profile', require('../middleware/auth'), async (req, res) => {
   const userId = req.user.userId;
   const { name, email, phone, dob, address, avatar } = req.body;
-  const sql = 'UPDATE Users SET name=?, email=?, phone=?, dob=?, address=?, avatar_url=? WHERE id=?';
-  db.query(sql, [name, email, phone, dob, address, avatar, userId], (err) => {
-    if (err) return res.status(500).json({ error: 'Failed to update profile' });
-    // Fetch updated user and return new JWT token
-    db.query('SELECT * FROM Users WHERE id=?', [userId], (err2, results) => {
-      if (err2 || results.length === 0) {
-        return res.status(500).json({ error: 'Failed to fetch updated user' });
-      }
-      const user = results[0];
-      const token = jwt.sign(
-        { userId: user.id, email: user.email, name: user.name, phone: user.phone, dob: user.dob, address: user.address, avatar: user.avatar_url, isAdmin: !!user.isAdmin },
-        process.env.JWT_SECRET || 'your-secret-key',
-        { expiresIn: '24h' }
-      );
-      res.json({ message: 'Profile updated', token });
+  
+  try {
+    // Validate required fields
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+
+    // Check if email is already taken by another user
+    const checkEmailSql = 'SELECT id FROM Users WHERE email = ? AND id != ?';
+    const [existingUsers] = await new Promise((resolve, reject) => {
+      db.query(checkEmailSql, [email, userId], (err, results) => {
+        if (err) reject(err);
+        else resolve([results]);
+      });
     });
-  });
+
+    if (existingUsers && existingUsers.length > 0) {
+      return res.status(400).json({ error: 'Email is already taken by another user' });
+    }
+
+    // Build dynamic SQL query for non-null fields
+    const updates = ['name=?', 'email=?'];
+    const values = [name, email];
+    
+    if (phone !== undefined) { updates.push('phone=?'); values.push(phone || null); }
+    if (dob !== undefined) { updates.push('dob=?'); values.push(dob || null); }
+    if (address !== undefined) { updates.push('address=?'); values.push(address || null); }
+    if (avatar !== undefined) { updates.push('avatar_url=?'); values.push(avatar || null); }
+    values.push(userId);
+
+    const sql = `UPDATE Users SET ${updates.join(', ')} WHERE id=?`;
+    await new Promise((resolve, reject) => {
+      db.query(sql, values, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+
+    // Fetch updated user data
+    const [updatedUser] = await new Promise((resolve, reject) => {
+      db.query('SELECT * FROM Users WHERE id=?', [userId], (err, results) => {
+        if (err) reject(err);
+        else resolve([results[0]]);
+      });
+    });
+
+    if (!updatedUser) {
+      throw new Error('Failed to fetch updated user');
+    }
+
+    // Generate new token with updated user data
+    const token = jwt.sign(
+      { 
+        userId: updatedUser.id, 
+        email: updatedUser.email, 
+        name: updatedUser.name, 
+        phone: updatedUser.phone, 
+        dob: updatedUser.dob, 
+        address: updatedUser.address, 
+        avatar: updatedUser.avatar_url, 
+        isAdmin: !!updatedUser.isAdmin 
+      },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    res.json({ 
+      message: 'Profile updated successfully',
+      token,
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        dob: updatedUser.dob,
+        address: updatedUser.address,
+        avatar: updatedUser.avatar_url,
+        isAdmin: !!updatedUser.isAdmin
+      }
+    });
+
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: 'Failed to update profile. Please try again.' });
+  }
 });
 
 // POST /users/change-password - Change user password

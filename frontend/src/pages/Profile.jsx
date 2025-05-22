@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { notify } from '../services/toast';
 import './Profile.css';
 
 function Profile() {
@@ -66,100 +69,70 @@ function Profile() {
     const formData = new FormData();
     formData.append('avatar', file);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/users/upload-avatar', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
-      });
-      const data = await res.json();
+      const data = await api.uploadAvatar(formData);
       setAvatarUploading(false);
-      if (res.ok && data.avatarUrl) {
+      if (data.avatarUrl) {
         setUser(u => ({ ...u, avatar: data.avatarUrl }));
         setForm(f => ({ ...f, avatar: data.avatarUrl }));
-        // --- Use new token from backend if provided ---
         if (data.token) {
           localStorage.setItem('token', data.token);
-          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new CustomEvent('tokenUpdate', { detail: data.token }));
         }
-        setMessage('Avatar updated!');
-      } else {
-        setMessage(data.error || 'Failed to upload avatar.');
+        notify.success('Profile picture updated successfully!');
       }
-    } catch {
+    } catch (err) {
       setAvatarUploading(false);
-      setMessage('Failed to upload avatar.');
+      notify.error(err.message || 'Failed to update profile picture');
     }
   };
-
-  const handleProfileUpdate = async e => {
+  const handleProfileUpdate = async (e) => {
     e.preventDefault();
-    setMessage('');
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(form)
-      });
-      const data = await res.json();
-      if (res.ok && data.token) {
+      // Validate required fields
+      if (!form.name || !form.email) {
+        notify.error('Name and email are required');
+        return;
+      }
+
+      // Format the date to YYYY-MM-DD before sending
+      const formData = {
+        ...form,
+        phone: form.phone || null,
+        dob: form.dob ? form.dob.split('T')[0] : null,
+        address: form.address || null
+      };
+
+      const data = await api.updateProfile(formData);
+      if (data.token) {
         localStorage.setItem('token', data.token);
-        window.dispatchEvent(new Event('storage'));
-        // Update user state from new token
+        window.dispatchEvent(new CustomEvent('tokenUpdate', { detail: data.token }));
         const payload = JSON.parse(atob(data.token.split('.')[1]));
         setUser({
           name: payload.name,
           email: payload.email,
           phone: payload.phone || '',
-          dob: payload.dob || '',
+          dob: payload.dob ? payload.dob.split('T')[0] : '',
           address: payload.address || '',
           avatar: payload.avatar || '',
           joined: payload.joined || ''
         });
-        setForm({
-          name: payload.name || '',
-          email: payload.email || '',
-          phone: payload.phone || '',
-          dob: payload.dob || '',
-          address: payload.address || '',
-          avatar: payload.avatar || ''
-        });
         setEditMode(false);
-        setMessage('Profile updated successfully.');
-      } else {
-        setMessage(data.error || 'Failed to update profile.');
+        notify.success('Profile updated successfully!');
       }
-    } catch {
-      setMessage('Failed to update profile.');
+    } catch (err) {
+      console.error('Profile update error:', err);
+      notify.error(err.message || 'Failed to update profile');
     }
   };
 
-  const handlePasswordUpdate = async e => {
+  const handlePasswordUpdate = async (e) => {
     e.preventDefault();
-    setMessage('');
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/users/change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ current: passwords.current, newPassword: passwords.new })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setPasswords({ current: '', new: '' });
-        setMessage('Password changed successfully.');
-      } else {
-        setMessage(data.error || 'Failed to change password.');
-      }
-    } catch {
-      setMessage('Failed to change password.');
+      await api.changePassword(passwords);
+      setPasswords({ current: '', new: '' });
+      notify.success('Password changed successfully!');
+    } catch (err) {
+      notify.error(err.message || 'Failed to change password');
     }
   };
 
@@ -168,8 +141,11 @@ function Profile() {
       <div className="profile-card modern-profile-card">
         <div className="profile-avatar-section">
           <img
-            src={user.avatar ? `http://localhost:5000${user.avatar}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'User')}&background=f1c40f&color=002147&size=128`}
-            alt="avatar"
+            src={user.avatar ? 
+              `http://localhost:5000${user.avatar}` : 
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'User')}&background=f1c40f&color=002147&size=128`
+            }
+            alt="User avatar"
             className="profile-avatar large-avatar"
           />
           <div className="avatar-upload-wrap">
@@ -183,7 +159,10 @@ function Profile() {
           <div className="profile-info-row"><span className="profile-info-label">Name:</span> <span>{user.name || 'Not provided'}</span></div>
           <div className="profile-info-row"><span className="profile-info-label">Email:</span> <span>{user.email || 'Not provided'}</span></div>
           <div className="profile-info-row"><span className="profile-info-label">Phone:</span> <span>{user.phone || 'Not provided'}</span></div>
-          <div className="profile-info-row"><span className="profile-info-label">Date of Birth:</span> <span>{user.dob || 'Not provided'}</span></div>
+          <div className="profile-info-row">
+            <span className="profile-info-label">Date of Birth:</span>
+            <span>{user.dob ? new Date(user.dob).toLocaleDateString() : 'Not provided'}</span>
+          </div>
           <div className="profile-info-row"><span className="profile-info-label">Address:</span> <span>{user.address || 'Not provided'}</span></div>
         </div>
         {editMode ? (
@@ -198,7 +177,13 @@ function Profile() {
               <input name="phone" type="tel" value={form.phone} onChange={handleChange} />
             </label>
             <label>Date of Birth
-              <input name="dob" type="date" value={form.dob} onChange={handleChange} />
+              <input 
+                name="dob" 
+                type="date" 
+                value={form.dob ? form.dob.split('T')[0] : ''} 
+                onChange={handleChange}
+                max={new Date().toISOString().split('T')[0]}
+              />
             </label>
             <label>Address
               <textarea name="address" value={form.address} onChange={handleChange} rows={2} />

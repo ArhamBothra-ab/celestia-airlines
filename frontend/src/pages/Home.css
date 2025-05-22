@@ -1,221 +1,177 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
 
 .home-page-fx {
-  min-height: calc(100vh - 180px); /* Ensures page fills viewport minus navbar/footer */
-  font-family: 'Montserrat', Arial, sans-serif;
-  background: linear-gradient(120deg, #f1f7ff 0%, #e0e7ff 100%);
-  box-sizing: border-box;
+  min-height: 100vh;
 }
 
+/* Hero Section */
 .hero-fx {
+  height: 60vh;
   background-size: cover;
   background-position: center;
-  min-height: 340px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
   position: relative;
 }
 
-.hero-overlay {
-  /* Remove background and box-shadow for transparent look */
-  background: none;
-  box-shadow: none;
-  color: #183251;
-  padding: 48px 32px 48px 32px;
-  border-radius: 0;
-  text-align: left;
-  max-width: 600px;
-  margin: 40px 0 0 40px;
-}
-
-.hero-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-  letter-spacing: 1px;
-  text-align: left;
-}
-
-.hero-desc {
-  font-size: 1.2rem;
-  margin-bottom: 24px;
-  text-align: left;
-}
-
-.hero-btn {
-  margin-top: 18px;
-  font-size: 1.1rem;
-  padding: 12px 32px;
-  text-align: left;
-}
-
-.section {
-  margin: 48px auto 0 auto;
-  max-width: 900px;
-  padding: 0 16px;
-}
-
-.section-title {
-  font-size: 1.7rem;
-  color: #183251;
-  font-weight: 700;
-  margin-bottom: 18px;
-  letter-spacing: 1px;
-}
-
-.section-title.center {
-  text-align: center;
-  width: 100%;
-}
-
-.highlights-fx {
+.hero-content {
+  height: 100%;
   display: flex;
-  gap: 24px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.highlight-card {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 18px 0 rgba(44,62,80,0.10);
-  padding: 28px 22px;
-  min-width: 220px;
-  max-width: 280px;
-  flex: 1 1 220px;
-  text-align: center;
-  color: #002147;
-  font-size: 1.08rem;
-  transition: box-shadow 0.2s;
-}
-
-.highlight-card:hover {
-  box-shadow: 0 8px 32px 0 #f1c40f33;
-}
-
-.how-works-list {
-  max-width: 600px;
+  align-items: center;
+  max-width: 1200px;
   margin: 0 auto;
-  text-align: left;
-  font-size: 1.08rem;
-  color: #002147;
-  padding-left: 18px;
-  line-height: 1.7;
+  padding: 0 2rem;
 }
 
-.testimonials-carousel {
-  display: flex;
-  gap: 24px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 18px;
+.hero-text {
+  max-width: 600px;
+  color: white;
+  padding: 2rem;
+  border-radius: 8px;
 }
 
-.testimonial-card {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 18px 0 rgba(44,62,80,0.10);
-  padding: 24px 18px;
-  min-width: 220px;
-  max-width: 280px;
-  flex: 1 1 220px;
-  text-align: center;
-  color: #002147;
-  font-size: 1.08rem;
-  transition: box-shadow 0.2s;
+.hero-text h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
 }
 
-.testimonial-card strong {
-  display: block;
-  margin-top: 10px;
+.hero-text p {
+  font-size: 1.5rem;
   color: #f1c40f;
+  margin-bottom: 2rem;
 }
 
+/* Section Styles */
+.section {
+  padding: 4rem 0;
+}
+
+.section-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section h2 {
+  color: #002147;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.stat-card {
+  text-align: center;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-card h3 {
+  color: #002147;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.feature-card h3 {
+  color: #002147;
+  margin-bottom: 0.5rem;
+}
+
+/* Destinations Grid */
 .destinations-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 28px;
-  justify-content: center;
-  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .destination-card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 18px 0 rgba(44,62,80,0.10);
-  padding: 0 0 18px 0;
-  max-width: 260px;
-  width: 100%;
-  text-align: center;
-  transition: box-shadow 0.2s, transform 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.destination-card:hover {
-  box-shadow: 0 8px 32px 0 #f1c40f33;
-  transform: translateY(-4px) scale(1.03);
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .destination-card img {
   width: 100%;
-  height: 150px;
+  height: 200px;
   object-fit: cover;
-  border-radius: 16px 16px 0 0;
-  margin-bottom: 12px;
 }
 
-.destination-card h3 {
+.destination-info {
+  padding: 1rem;
+}
+
+.destination-info h3 {
   color: #002147;
-  font-size: 1.18rem;
-  margin: 8px 0 4px 0;
+  margin-bottom: 0.5rem;
 }
 
-.destination-card p {
-  color: #444;
-  font-size: 1rem;
-  margin: 0 12px;
+/* Testimonials Grid */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 
-.animate-fadein {
-  animation: fadein 0.7s cubic-bezier(.39,.58,.57,1.01);
+.testimonial-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-align: center;
 }
 
-@keyframes fadein {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+.testimonial-emoji {
+  font-size: 2rem;
+  margin-bottom: 1rem;
 }
 
-@media (max-width: 900px) {
-  .highlights-fx, .testimonials-carousel {
-    flex-direction: column;
-    align-items: center;
-  }
-  .destinations-grid {
-    flex-direction: column;
-    align-items: center;
-  }
-  .hero-overlay {
-    margin: 24px 0 0 12px;
-    padding: 32px 16px;
-    max-width: 98vw;
-  }
+.testimonial-card p {
+  font-style: italic;
+  margin-bottom: 1rem;
 }
 
-@media (max-width: 600px) {
-  .home-page-fx {
-    min-height: calc(100vh - 160px);
+.testimonial-card strong {
+  color: #002147;
+  display: block;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .hero-text h1 {
+    font-size: 2rem;
   }
-  .hero-title {
-    font-size: 1.3rem;
+
+  .hero-text p {
+    font-size: 1.2rem;
   }
-  .section-title {
-    font-size: 1.1rem;
+
+  .section {
+    padding: 2rem 0;
   }
-  .hero-overlay {
-    margin: 12px 0 0 4px;
-    padding: 18px 6px;
+
+  .section-content {
+    padding: 0 1rem;
   }
 }

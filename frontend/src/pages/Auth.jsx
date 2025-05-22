@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { notify } from '../services/toast';
 import './Auth.css';
 import { FaLock, FaUser, FaPlane, FaUserPlus, FaGift, FaRocket } from 'react-icons/fa';
 
@@ -16,6 +18,7 @@ function Auth() {
   });
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -27,41 +30,34 @@ function Auth() {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const endpoint = isLogin ? '/users/login' : '/users/register';
-    let body, headers;
-    if (isLogin) {
-      body = JSON.stringify(formData);
-      headers = { 'Content-Type': 'application/json' };
-    } else {
-      // Registration: use FormData for avatar
-      body = new FormData();
-      Object.entries(formData).forEach(([k, v]) => {
-        if (v) body.append(k, v);
-      });
-      headers = {};
-    }
+    setError('');
+
     try {
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
-        method: 'POST',
-        headers,
-        body
-      });
-      const data = await response.json();
-      setLoading(false);
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        alert(isLogin ? 'Login successful!' : 'Registration successful!');
-        navigate('/flights');
+      let data;
+      if (isLogin) {
+        data = await api.login({
+          email: formData.email,
+          password: formData.password
+        });
       } else {
-        alert(data.message || data.error || 'An error occurred');
+        const registrationData = new FormData();
+        Object.entries(formData).forEach(([k, v]) => {
+          if (v) registrationData.append(k, v);
+        });
+        data = await api.register(registrationData);
       }
+
+      localStorage.setItem('token', data.token);
+      // Force navbar to update
+      window.dispatchEvent(new CustomEvent('tokenUpdate', { detail: data.token }));
+      notify.success(isLogin ? 'Welcome back!' : 'Registration successful! Welcome aboard!');
+      navigate('/flights');
     } catch (err) {
+      notify.error(err.message || 'An error occurred. Please try again.');
       setLoading(false);
-      alert('An error occurred. Please try again.');
     }
   };
 
@@ -125,10 +121,14 @@ function Auth() {
             value={formData.password}
             onChange={handleInputChange}
             required
-          />
-          <button type="submit" className="auth-button" disabled={loading}>
+          />          <button type="submit" className="auth-button" disabled={loading}>
             {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
           </button>
+          {error && (
+            <div className="auth-error" style={{ color: '#ff3333', marginTop: '10px', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
         </form>
         <p className="auth-switch">
           {isLogin ? "Don't have an account? " : "Already have an account? "}

@@ -8,15 +8,31 @@
   --white: #fff;
 }
 
-html, body, #root {
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  min-height: 100vh;
   background: var(--soft-blue) !important;
   color: var(--primary-blue) !important;
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--soft-blue) !important;
+  color: var(--primary-blue) !important;
+}
+
 .page-container, .bookings-page, .profile-page-fx, .auth-page, .faq-page-fx, .contact-page-fx, .flights-page, .home-page-fx {
   background: none;
   color: var(--primary-blue);
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {

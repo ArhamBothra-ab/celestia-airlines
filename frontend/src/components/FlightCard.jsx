@@ -1,11 +1,20 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { notify } from '../services/toast';
 import './FlightCard.css';
 
-function FlightCard({ flight, onBook }) {
-  const handleBook = () => {
-    if (onBook) {
-      onBook(flight.id);
+function FlightCard({ flight }) {
+  const navigate = useNavigate();
+
+  const handleBookClick = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      notify.warn('Please log in to book this flight');
+      navigate('/auth');
+      return;
     }
+    // Add booking logic here
+    notify.info('Proceeding to booking...');
   };
 
   return (
@@ -26,11 +35,11 @@ function FlightCard({ flight, onBook }) {
         <p className="flight-price">${flight.price}</p>
         <p className="flight-seats">Seats: {flight.seats}</p>
       </div>
-      <button className="book-button" onClick={handleBook}>
+      <button className="book-button" onClick={handleBookClick}>
         Book Flight
       </button>
     </div>
   );
 }
 
-export default FlightCard; 
+export default FlightCard;
