@@ -82,9 +82,20 @@ router.put('/flights/:id', auth, isAdmin, (req, res) => {
 
 // DELETE /admin/flights/:id - Delete a flight
 router.delete('/flights/:id', auth, isAdmin, (req, res) => {
-  db.query('DELETE FROM Flights WHERE id = ?', [req.params.id], (err) => {
-    if (err) return res.status(500).json({ error: 'Failed to delete flight' });
-    res.json({ message: 'Flight deleted' });
+  const flightId = req.params.id;
+  // Check for related bookings or tickets
+  db.query('SELECT COUNT(*) AS bookingCount FROM Bookings WHERE flight_id = ?', [flightId], (err, bookingResults) => {
+    if (err) return res.status(500).json({ error: 'Database error (bookings check)', details: err.message });
+    if (bookingResults[0].bookingCount > 0) {
+      return res.status(400).json({ error: 'Cannot delete flight: there are existing bookings for this flight.' });
+    }
+    // Optionally, check for tickets if your schema allows tickets to reference flights directly
+    // db.query('SELECT COUNT(*) AS ticketCount FROM Tickets WHERE flight_id = ?', [flightId], (err, ticketResults) => { ... });
+    db.query('DELETE FROM Flights WHERE id = ?', [flightId], (err, result) => {
+      if (err) return res.status(500).json({ error: 'Failed to delete flight', details: err.message });
+      if (result.affectedRows === 0) return res.status(404).json({ error: 'Flight not found' });
+      res.json({ message: 'Flight deleted' });
+    });
   });
 });
 

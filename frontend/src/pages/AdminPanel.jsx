@@ -186,7 +186,22 @@ function AdminPanel() {
     if (window.confirm('Delete this flight?')) {
       setFlightsError('');
       fetch(`${API}/admin/flights/${id}`, { method: 'DELETE', headers: authHeader() })
-        .then(fetchFlights)
+        .then(async res => {
+          if (!res.ok) {
+            let msg = 'Failed to delete flight.';
+            try {
+              const data = await res.json();
+              if (data.error && data.error.includes('bookings')) {
+                msg = 'Cannot delete flight: bookings exist for this flight.';
+              } else if (data.error) {
+                msg = data.error;
+              }
+            } catch {}
+            setFlightsError(msg);
+          } else {
+            fetchFlights();
+          }
+        })
         .catch(() => setFlightsError('Failed to delete flight.'));
     }
   };
